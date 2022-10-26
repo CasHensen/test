@@ -29,9 +29,10 @@ len(input_text)
 
 text = ""
 for line in input_text:
-    removed_enter = line.replace('\n', ". ") #remove the enters from the YouTube transcript
-    final_line = removed_enter.replace(" Music", "")
-     
+    remove_background = line.replace("[Music]", "") #remove the backgroundmusic transcript. 
+    remove_uh = remove_background.replace(" uh ", " ") #remove the times mario says "uh"
+    final_line = remove_background.replace('\n', ". ") #remove the enters from the YouTube transcript
+    
     text += final_line
 
 string.punctuation = string.punctuation.replace(".", "")
@@ -73,7 +74,7 @@ oov_tok = '<OOV>' #how the words outside the vocab_size are labelled
 embedding_dim = 50 #the dimension of the word embedding
 padding_type='post' #??
 trunc_type='post' #??
-seq_length = 50 #the length of sequences used in the LSTM
+seq_length = 50 #the length of sequences used in the LSTM, maybe a smaller sequence would not have us use a random string first. 
 
 # tokenizes sentences
 tokenizer = Tokenizer(num_words = vocab_size, oov_token=oov_tok)
@@ -103,7 +104,8 @@ y = np_utils.to_categorical(dataY)
 
 model = Sequential()
 model.add(Embedding(vocab_size, embedding_dim, input_length=seq_length ))       #The words embedding with dimensions is added
-model.add(Bidirectional(keras.layers.LSTM(64)))                                 #The LSTM is added, not sure if we need Bidirectional and what value for LSTM is best
+model.add(LSTM(64))                                                             #add the LSTM layer
+#model.add(Bidirectional(keras.layers.LSTM(64)))                                 #The LSTM is added, not sure if we need Bidirectional and what value for LSTM is best
 model.add(Dropout(0.2))                                                         #Dropout decreases overfitting, by leaving some LSTM cell out of the backpropagation for each epoch
 model.add(Dense(vocab_size, activation='softmax'))                              #Dense makes sure the output vector is of size: vocab_size
 # can add more LSTM layers, see the characterbased prediction LSTM model 2
